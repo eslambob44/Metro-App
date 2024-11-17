@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data.SqlClient;
 using System.Data;
+using System.Data.SqlClient;
 
 namespace MetroDataAccessLayer
 {
@@ -101,13 +97,13 @@ namespace MetroDataAccessLayer
             string Query = @"Select StationName From FullStationInfo
                             Where LineNumber = @LineNumber
                             Order By LineNumber , StationOrder;";
-            SqlCommand Command = new SqlCommand(Query,Connection);
+            SqlCommand Command = new SqlCommand(Query, Connection);
             Command.Parameters.AddWithValue("@LineNumber", LineNumber);
             try
             {
                 Connection.Open();
                 SqlDataReader Reader = Command.ExecuteReader();
-                if(Reader.HasRows)
+                if (Reader.HasRows)
                 {
                     dtStations.Load(Reader);
                 }
@@ -166,7 +162,7 @@ namespace MetroDataAccessLayer
             return dtStations;
         }
 
-        static public float GetIntersectionLineBetweenTwoStations(string StationFrom , string StationTo)
+        static public float GetIntersectionLineBetweenTwoStations(string StationFrom, string StationTo)
         {
             float Line = -1;
             SqlConnection Connection = new SqlConnection(clsDataAccessLayerSettings._ConnectionString);
@@ -175,14 +171,14 @@ namespace MetroDataAccessLayer
                              group by LineNumber
                              Having Count(LineNumber) =2";
 
-            SqlCommand Command = new SqlCommand(Query,Connection);  
-            Command.Parameters.AddWithValue("@StationFrom" , StationFrom);
+            SqlCommand Command = new SqlCommand(Query, Connection);
+            Command.Parameters.AddWithValue("@StationFrom", StationFrom);
             Command.Parameters.AddWithValue("@StationTo", StationTo);
             try
             {
                 Connection.Open();
                 object Result = Command.ExecuteScalar();
-                if(Result != null)
+                if (Result != null)
                 {
                     Line = Convert.ToSingle(Result.ToString());
                 }
@@ -196,18 +192,18 @@ namespace MetroDataAccessLayer
             return Line;
 
         }
-        static private void _Swap(ref short Num1 , ref short Num2)
+        static private void _Swap(ref short Num1, ref short Num2)
         {
             short Temp = Num1;
             Num1 = Num2;
             Num2 = Temp;
         }
 
-        static public DataTable GetTheRoadBetweenTwoStationsInTheSameRoad( float LineNumber , short StationFromOrder , short StationToOrder)
+        static public DataTable GetTheRoadBetweenTwoStationsInTheSameLine(float LineNumber, short StationFromOrder, short StationToOrder)
         {
             DataTable dtStations = new DataTable();
             string Order = "ASC";
-            if(StationFromOrder>StationToOrder)
+            if (StationFromOrder > StationToOrder)
             {
                 _Swap(ref StationFromOrder, ref StationToOrder);
                 Order = "DESC";
@@ -216,18 +212,18 @@ namespace MetroDataAccessLayer
             string Query = @"Select StationName , LineNumber  From FullStationInfo
                             Where StationOrder between (@StationFromOrder)  and (@StationToOrder)
                             and LineNumber =@LineNumber
-                            Order By StationOrder "+Order;
+                            Order By StationOrder " + Order;
 
             SqlCommand Command = new SqlCommand(Query, Connection);
             Command.Parameters.AddWithValue("@LineNumber", LineNumber);
-            Command.Parameters.AddWithValue("@StationFromOrder" , StationFromOrder);
+            Command.Parameters.AddWithValue("@StationFromOrder", StationFromOrder);
             Command.Parameters.AddWithValue("@StationToOrder", StationToOrder);
 
             try
             {
                 Connection.Open();
                 SqlDataReader Reader = Command.ExecuteReader();
-                if(Reader.HasRows) 
+                if (Reader.HasRows)
                 {
                     dtStations.Load(Reader);
                 }
@@ -241,13 +237,13 @@ namespace MetroDataAccessLayer
             return dtStations;
         }
 
-        static public DataTable GetTheRoadBetweenTwoStationsInTheSameRoad(float LineNumber, string StationFrom, string StationTo)
+        static public DataTable GetTheRoadBetweenTwoStationsInTheSameLine(float LineNumber, string StationFrom, string StationTo)
         {
             short StationFromOrder = GetStationOrderInLine(StationFrom, LineNumber);
             short StationToOrder = GetStationOrderInLine(StationTo, LineNumber);
-            if(StationFromOrder !=-1 &&  StationToOrder !=-1)
+            if (StationFromOrder != -1 && StationToOrder != -1)
             {
-                return GetTheRoadBetweenTwoStationsInTheSameRoad(LineNumber, StationFromOrder, StationToOrder);
+                return GetTheRoadBetweenTwoStationsInTheSameLine(LineNumber, StationFromOrder, StationToOrder);
             }
             else
             {
@@ -255,22 +251,22 @@ namespace MetroDataAccessLayer
             }
         }
 
-        static public short GetStationOrderInLine(string StationName , float LineNumber)
+        static public short GetStationOrderInLine(string StationName, float LineNumber)
         {
             short StationOrder = -1;
             SqlConnection Connection = new SqlConnection(clsDataAccessLayerSettings._ConnectionString);
             string Query = @"Select StationOrder From FullStationInfo
                              Where StationName = @StationName and LineNumber =@LineNumber";
-            SqlCommand Command = new SqlCommand (Query, Connection);
+            SqlCommand Command = new SqlCommand(Query, Connection);
             Command.Parameters.AddWithValue("@StationName", StationName);
             Command.Parameters.AddWithValue("@LineNumber", LineNumber);
             try
             {
                 Connection.Open();
                 object Result = Command.ExecuteScalar();
-                if (Result !=null)
+                if (Result != null)
                 {
-                    StationOrder = Convert.ToInt16((string)Result);
+                    StationOrder = Convert.ToInt16(Result.ToString());
                 }
             }
             catch { }
@@ -279,11 +275,11 @@ namespace MetroDataAccessLayer
         }
 
 
-        static public DataTable ListTransferStationsThatConnectTwoLines(float LineNumberFrom , float LineNumberTo)
+        static public DataTable ListTransferStationsThatConnectTwoLines(float LineNumberFrom, float LineNumberTo)
         {
             DataTable dtStations = new DataTable();
-            SqlConnection Connection = new SqlConnection (clsDataAccessLayerSettings._ConnectionString);
-            string Query = @"Select StationID , StationName,StationOrder From FullStationInfo
+            SqlConnection Connection = new SqlConnection(clsDataAccessLayerSettings._ConnectionString);
+            string Query = @"Select StationID , StationName,StationOrder , LineNumber From FullStationInfo
                              Where StationName in 
                              	  (
                              	  Select Distinct StationName From FullTransferStationInfo
@@ -294,13 +290,13 @@ namespace MetroDataAccessLayer
                              and LineNumber in(@LineNumberFrom);";
 
             SqlCommand Command = new SqlCommand(Query, Connection);
-            Command.Parameters.AddWithValue("@LineNumberFrom" ,LineNumberFrom);
-            Command.Parameters.AddWithValue("@LineNumberTo" , LineNumberTo);
+            Command.Parameters.AddWithValue("@LineNumberFrom", LineNumberFrom);
+            Command.Parameters.AddWithValue("@LineNumberTo", LineNumberTo);
             try
             {
                 Connection.Open();
                 SqlDataReader Reader = Command.ExecuteReader();
-                if(Reader.HasRows)
+                if (Reader.HasRows)
                 {
                     dtStations.Load(Reader);
                 }
@@ -317,14 +313,14 @@ namespace MetroDataAccessLayer
             SqlConnection Connection = new SqlConnection(clsDataAccessLayerSettings._ConnectionString);
             string Query = @"Select LineNumber From FullStationInfo
                             Where StationName = @StationName";
-            
-            SqlCommand Command = new SqlCommand (Query, Connection);
-            Command.Parameters.AddWithValue("@StationName" , StationName);
+
+            SqlCommand Command = new SqlCommand(Query, Connection);
+            Command.Parameters.AddWithValue("@StationName", StationName);
             try
             {
                 Connection.Open();
                 SqlDataReader Reader = Command.ExecuteReader();
-                if(Reader.HasRows)
+                if (Reader.HasRows)
                 {
                     dtLines.Load(Reader);
                 }
