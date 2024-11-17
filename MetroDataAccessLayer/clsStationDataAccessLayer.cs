@@ -165,5 +165,36 @@ namespace MetroDataAccessLayer
             }
             return dtStations;
         }
+
+        static public float GetIntersectionLineBetweenTwoStations(string StationFrom , string StationTo)
+        {
+            float Line = -1;
+            SqlConnection Connection = new SqlConnection(clsDataAccessLayerSettings._ConnectionString);
+            string Query = @"Select Top 1 LineNumber From FullStationInfo
+                             Where StationName in ( @StationFrom , @StationTo)
+                             group by LineNumber
+                             Having Count(LineNumber) =2";
+
+            SqlCommand Command = new SqlCommand(Query,Connection);  
+            Command.Parameters.AddWithValue("@StationFrom" , StationFrom);
+            Command.Parameters.AddWithValue("@StationTo", StationTo);
+            try
+            {
+                Connection.Open();
+                object Result = Command.ExecuteScalar();
+                if(Result != null)
+                {
+                    Line = Convert.ToSingle(Result.ToString());
+                }
+            }
+            catch { }
+            finally
+            {
+                Connection.Close();
+            }
+
+            return Line;
+
+        }
     }
 }
