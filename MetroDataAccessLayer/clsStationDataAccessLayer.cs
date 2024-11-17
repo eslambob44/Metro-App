@@ -311,5 +311,29 @@ namespace MetroDataAccessLayer
             return dtStations;
         }
 
+        static public DataTable GetStationLines(string StationName)
+        {
+            DataTable dtLines = new DataTable();
+            SqlConnection Connection = new SqlConnection(clsDataAccessLayerSettings._ConnectionString);
+            string Query = @"Select LineNumber From FullStationInfo
+                            Where StationName = @StationName";
+            
+            SqlCommand Command = new SqlCommand (Query, Connection);
+            Command.Parameters.AddWithValue("@StationName" , StationName);
+            try
+            {
+                Connection.Open();
+                SqlDataReader Reader = Command.ExecuteReader();
+                if(Reader.HasRows)
+                {
+                    dtLines.Load(Reader);
+                }
+                Reader.Close();
+            }
+            catch { }
+            finally { Connection.Close(); }
+            return dtLines;
+        }
+
     }
 }
