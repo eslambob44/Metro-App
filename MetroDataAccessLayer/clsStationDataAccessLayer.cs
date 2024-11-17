@@ -278,5 +278,38 @@ namespace MetroDataAccessLayer
             return StationOrder;
         }
 
+
+        static public DataTable ListTransferStationsThatConnectTwoLines(float LineNumberFrom , float LineNumberTo)
+        {
+            DataTable dtStations = new DataTable();
+            SqlConnection Connection = new SqlConnection (clsDataAccessLayerSettings._ConnectionString);
+            string Query = @"Select StationID , StationName,StationOrder From FullStationInfo
+                             Where StationName in 
+                             	  (
+                             	  Select Distinct StationName From FullTransferStationInfo
+                             	  Where LineNumber in (@LineNumberFrom,@LineNumberTO)
+                             	  Group by StationName
+                             	  having Count(LineNumber) =2
+                             	  )
+                             and LineNumber in(@LineNumberFrom);";
+
+            SqlCommand Command = new SqlCommand(Query, Connection);
+            Command.Parameters.AddWithValue("@LineNumberFrom" ,LineNumberFrom);
+            Command.Parameters.AddWithValue("@LineNumberTo" , LineNumberTo);
+            try
+            {
+                Connection.Open();
+                SqlDataReader Reader = Command.ExecuteReader();
+                if(Reader.HasRows)
+                {
+                    dtStations.Load(Reader);
+                }
+                Reader.Close();
+            }
+            catch { }
+            finally { Connection.Close(); }
+            return dtStations;
+        }
+
     }
 }
