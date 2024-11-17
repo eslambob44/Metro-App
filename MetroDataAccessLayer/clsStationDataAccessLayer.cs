@@ -196,5 +196,87 @@ namespace MetroDataAccessLayer
             return Line;
 
         }
+        static private void _Swap(ref short Num1 , ref short Num2)
+        {
+            short Temp = Num1;
+            Num1 = Num2;
+            Num2 = Temp;
+        }
+
+        static public DataTable GetTheRoadBetweenTwoStationsInTheSameRoad( float LineNumber , short StationFromOrder , short StationToOrder)
+        {
+            DataTable dtStations = new DataTable();
+            string Order = "ASC";
+            if(StationFromOrder>StationToOrder)
+            {
+                _Swap(ref StationFromOrder, ref StationToOrder);
+                Order = "DESC";
+            }
+            SqlConnection Connection = new SqlConnection(clsDataAccessLayerSettings._ConnectionString);
+            string Query = @"Select StationName , LineNumber  From FullStationInfo
+                            Where StationOrder between (@StationFromOrder)  and (@StationToOrder)
+                            and LineNumber =@LineNumber
+                            Order By StationOrder "+Order;
+
+            SqlCommand Command = new SqlCommand(Query, Connection);
+            Command.Parameters.AddWithValue("@LineNumber", LineNumber);
+            Command.Parameters.AddWithValue("@StationFromOrder" , StationFromOrder);
+            Command.Parameters.AddWithValue("@StationToOrder", StationToOrder);
+
+            try
+            {
+                Connection.Open();
+                SqlDataReader Reader = Command.ExecuteReader();
+                if(Reader.HasRows) 
+                {
+                    dtStations.Load(Reader);
+                }
+                Reader.Close();
+            }
+            catch { }
+            finally
+            {
+                Connection.Close();
+            }
+            return dtStations;
+        }
+
+        static public DataTable GetTheRoadBetweenTwoStationsInTheSameRoad(float LineNumber, string StationFrom, string StationTo)
+        {
+            short StationFromOrder = GetStationOrderInLine(StationFrom, LineNumber);
+            short StationToOrder = GetStationOrderInLine(StationTo, LineNumber);
+            if(StationFromOrder !=-1 &&  StationToOrder !=-1)
+            {
+                return GetTheRoadBetweenTwoStationsInTheSameRoad(LineNumber, StationFromOrder, StationToOrder);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        static public short GetStationOrderInLine(string StationName , float LineNumber)
+        {
+            short StationOrder = -1;
+            SqlConnection Connection = new SqlConnection(clsDataAccessLayerSettings._ConnectionString);
+            string Query = @"Select StationOrder From FullStationInfo
+                             Where StationName = @StationName and LineNumber =@LineNumber";
+            SqlCommand Command = new SqlCommand (Query, Connection);
+            Command.Parameters.AddWithValue("@StationName", StationName);
+            Command.Parameters.AddWithValue("@LineNumber", LineNumber);
+            try
+            {
+                Connection.Open();
+                object Result = Command.ExecuteScalar();
+                if (Result !=null)
+                {
+                    StationOrder = Convert.ToInt16((string)Result);
+                }
+            }
+            catch { }
+            finally { Connection.Close(); }
+            return StationOrder;
+        }
+
     }
 }
