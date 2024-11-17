@@ -44,5 +44,11 @@
     <Compile Include="clsStation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MetroDataAccessLayer\MetroDataAccessLayer.csproj">
+      <Project>{4d0f9d0d-2d42-48bc-a647-caef5bc3da7e}</Project>
+      <Name>MetroDataAccessLayer</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
