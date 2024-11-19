@@ -364,6 +364,54 @@ namespace MetroDataAccessLayer
             return Price;
         }
 
+        static public short GetStationsCountBetweenTwoStationsInTheSameLine(float LineNumber , short StationFromOrder , short StationToOrder)
+        {
+            short Count = -1;
+            if (StationFromOrder > StationToOrder)
+            {
+                _Swap(ref StationFromOrder, ref StationToOrder);
+            }
+            SqlConnection Connection = new SqlConnection(clsDataAccessLayerSettings._ConnectionString);
+            string Query = @"Select Count(StationID)  From FullStationInfo
+                            Where StationOrder between (@StationFromOrder)  and (@StationToOrder)
+                            and LineNumber =@LineNumber";
+
+            SqlCommand Command = new SqlCommand(Query, Connection);
+            Command.Parameters.AddWithValue("@LineNumber", LineNumber);
+            Command.Parameters.AddWithValue("@StationFromOrder", StationFromOrder);
+            Command.Parameters.AddWithValue("@StationToOrder", StationToOrder);
+
+            try
+            {
+                Connection.Open();
+                object Result = Command.ExecuteScalar();
+                if (Result != null)
+                {
+                    Count = Convert.ToInt16(Result.ToString());
+                }
+            }
+            catch { }
+            finally
+            {
+                Connection.Close();
+            }
+            return Count;
+        }
+
+        static public short GetStationsCountBetweenTwoStationsInTheSameLine(float LineNumber, string StationFrom, string StationTo)
+        {
+            short StationFromOrder = GetStationOrderInLine(StationFrom, LineNumber);
+            short StationToOrder = GetStationOrderInLine(StationTo, LineNumber);
+            if (StationFromOrder != -1 && StationToOrder != -1)
+            {
+                return GetStationsCountBetweenTwoStationsInTheSameLine(LineNumber, StationFromOrder, StationToOrder);
+            }
+            else
+            {
+                return -1;
+            }
+        }
+
     }
 
     
