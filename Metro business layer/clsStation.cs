@@ -27,7 +27,7 @@ namespace Metro_business_layer
             return clsStationDataAccessLayer.GetStationLines(StationName);
         }
 
-        private static DataTable _GetTransferStations(DataTable dtStationFromLines, DataTable dtStationToLines)
+        private static DataTable _GetTransferStationsConnectTwoLines(DataTable dtStationFromLines, DataTable dtStationToLines)
         {
             DataTable dtStations = new DataTable();
             dtStations.Columns.Add("StationID", typeof(short));
@@ -80,12 +80,18 @@ namespace Metro_business_layer
             return (string)dtTransferStations.Rows[Index]["StationName"];
         }
 
-        private static DataTable _GetTwoStationsInDifferentLine(string StationFrom, string StationTo)
+        private static string _GetNearestTransferStation(string StationFrom, string StationTo)
         {
             DataTable dtStationFromLines = _GetStationLines(StationFrom);
             DataTable dtStationToLines = _GetStationLines(StationTo);
-            DataTable dtTransferStations = _GetTransferStations(dtStationFromLines, dtStationToLines);
+            DataTable dtTransferStations = _GetTransferStationsConnectTwoLines(dtStationFromLines, dtStationToLines);
             string TransferStation = _GetNearestTransferStation(dtTransferStations, StationFrom);
+            return TransferStation;
+        }
+
+        private static DataTable _GetTwoStationsInDifferentLine(string StationFrom, string StationTo)
+        {
+            string TransferStation = _GetNearestTransferStation(StationFrom, StationTo);
             DataTable dtStations = GetRoad(StationFrom, TransferStation);
             dtStations.Merge(GetRoad(TransferStation, StationTo));
             return dtStations;
@@ -108,6 +114,39 @@ namespace Metro_business_layer
             else
             {
                 return _GetTwoStationsInDifferentLine(StationFrom, StationTo);
+            }
+        }
+
+        public static short GetRoadCount(DataTable dtStations)
+        {
+            return (short)(dtStations.Rows.Count - 1);
+        }
+
+        private static short _GetRoadCountBetweenTwoStationsInTheSameLine(string StationFrom , string StationTo)
+        {
+            float Line = _GetIntersectLine(StationFrom , StationTo);
+            return clsStationDataAccessLayer.GetStationsCountBetweenTwoStationsInTheSameLine(Line , StationFrom , StationTo);
+        }
+
+        private static short _GetRoadCountBetweenTwoStationsInDifferentLine(string StationFrom , string StationTo)
+        {
+            string TransferStation = _GetNearestTransferStation(StationFrom, StationTo);
+            short Count = _GetRoadCountBetweenTwoStationsInTheSameLine(StationFrom,TransferStation);
+            Count += _GetRoadCountBetweenTwoStationsInTheSameLine(TransferStation, StationTo);
+            Count -= 1;
+            return Count;
+
+        }
+
+        public static short GetRoadCount(string StationFrom , string StationTo)
+        {
+            if (_GetIntersectLine(StationFrom, StationTo) != -1)
+            {
+                return _GetRoadCountBetweenTwoStationsInTheSameLine(StationFrom, StationTo);
+            }
+            else
+            {
+                return _GetRoadCountBetweenTwoStationsInDifferentLine(StationFrom, StationTo);
             }
         }
 
