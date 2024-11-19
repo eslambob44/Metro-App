@@ -110,5 +110,10 @@ namespace Metro_business_layer
                 return _GetTwoStationsInDifferentLine(StationFrom, StationTo);
             }
         }
+
+        public static short GetRoadPrice(short NumberOfStations)
+        {
+            return clsStationDataAccessLayer.GetRoadPrice(NumberOfStations);
+        }
     }
 }
