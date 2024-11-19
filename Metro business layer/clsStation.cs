@@ -22,6 +22,11 @@ namespace Metro_business_layer
             return clsStationDataAccessLayer.GetStationLines(StationName);
         }
 
+        public static DataTable ListStationsByLikeName(string StationName)
+        {
+            return clsStationDataAccessLayer.GetStationsByLikeName(StationName);
+        }
+
         
 
         
