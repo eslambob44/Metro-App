@@ -412,6 +412,52 @@ namespace MetroDataAccessLayer
             }
         }
 
+        static public string GetDirectionOfLine(float Line , short StationFromOrder , short StationToOrder)
+        {
+            string DirectionName = null;
+            SqlConnection Connection = new SqlConnection(clsDataAccessLayerSettings._ConnectionString);
+            string Query = @"
+                            Select Direction =
+                            case
+                        	    when @StationFromOrder < @StationToOrder 
+                                then (Select Top 1 StationName From FullStationInfo
+                        	    			Where LineNumber =@LineNumber
+                        	    			Order By StationOrder ASC)
+                        	    else (Select Top 1 StationName From FullStationInfo
+                        	    			Where LineNumber =LineNumber
+                        	    			Order By StationOrder DESC)
+                            end";
+            SqlCommand Command = new SqlCommand(Query, Connection);
+            Command.Parameters.AddWithValue("@LineNumber", Line);
+            Command.Parameters.AddWithValue("@StationFromOrder", StationFromOrder);
+            Command.Parameters.AddWithValue("@StationToOrder", StationToOrder);
+            try
+            {
+                Connection.Open();
+                object Result = Command.ExecuteScalar();
+                if(Result != null)
+                {
+                    DirectionName = Result.ToString();
+                }
+            }
+            catch { }
+            finally { Connection.Close(); }
+            return DirectionName;
+
+        }
+        static public string GetDirectionOfLine(float Line, string StationFrom, string StationTo)
+        {
+            short StationFromOrder = GetStationOrderInLine(StationFrom, Line);
+            short StationToOrder = GetStationOrderInLine(StationTo, Line);
+            if (StationFromOrder != -1 && StationToOrder != -1)
+            {
+                return GetDirectionOfLine(Line, StationFromOrder, StationToOrder);
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 
     
