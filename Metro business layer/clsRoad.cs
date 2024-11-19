@@ -13,12 +13,16 @@ namespace Metro_business_layer
         public DataTable dtRoad {  get; }
         public short StationsCount {  get;  }
         public short Price {  get; }
-
-        private clsRoad(DataTable dtRoad , short StationsCount ,short Price )
+        static private bool IsThereTransfer = false;
+        private bool _IsThereTransfer;
+        public string Message { get; }
+        private clsRoad(DataTable dtRoad , short StationsCount ,short Price , bool IsThereTransfer )
         {
             this.dtRoad = dtRoad;
             this.StationsCount = StationsCount;
             this.Price = Price;
+            this._IsThereTransfer = IsThereTransfer;
+            this.Message = _GenerateMessage();
         }
 
         private static DataTable _GetRoadBetweenTwoStationsRoadInTheSameLine(string StationFrom, string StationTo)
@@ -108,6 +112,7 @@ namespace Metro_business_layer
 
         public static clsRoad GetRoad(string StationFrom, string StationTo)
         {
+            bool IsThereTransfer = false;
             DataTable dtStations = new DataTable();
             if (_GetIntersectLine(StationFrom, StationTo) != -1)
             {
@@ -116,6 +121,7 @@ namespace Metro_business_layer
             else
             {
                 dtStations = _GetRoadBetweenTwoStationsInDifferentLine(StationFrom, StationTo);
+                IsThereTransfer = true;
             }
 
             if (dtStations == null) return null;
@@ -123,7 +129,8 @@ namespace Metro_business_layer
             {
                 short Count = _GetRoadCount(dtStations);
                 short Price = _GetRoadPrice(Count);
-                return new clsRoad(dtStations,Count, Price);
+                
+                return new clsRoad(dtStations,Count, Price, IsThereTransfer);
             }
         }
 
@@ -169,6 +176,75 @@ namespace Metro_business_layer
         {
             short NumberOfStations = GetRoadCount(StationFrom, StationTo);
             return _GetRoadPrice(NumberOfStations);
+        }
+
+        string _ConvertLineFloatIntoString(float LineNumber)
+        {
+            switch (LineNumber)
+            {
+                case 1:
+                    return "الأول";
+                case 2:
+                    return "التاني";
+                case 3:
+                case (float)3.5:
+                    return "الثالث";
+                default:
+                    return null;
+            }
+        }
+
+        string _GetStationFrom()
+        {
+            return (string)dtRoad.Rows[0]["StationName"];
+        }
+        string _GetStationTo()
+        {
+            return (string)dtRoad.Rows[dtRoad.Rows.Count-1]["StationName"];
+        }
+
+        string _GetTransferStationIfExists()
+        {
+            if (!_IsThereTransfer) return null;
+            float Line = (float)dtRoad.Rows[0]["LineNumber"];
+            DataRow[] Rows = dtRoad.Select("LineNumber = " + Line);
+            return (string)Rows[Rows.Length - 1]["StationName"];
+        }
+
+        private string _GenerateMessageWithTransfer()
+        {
+
+            double LineFrom = (double)dtRoad.Rows[0]["LineNumber"];
+            double LineTo = (double)dtRoad.Rows[dtRoad.Rows.Count-1]["LineNumber"];
+            string StationFrom = _GetStationFrom();
+            string StationTo = _GetStationTo();
+            string TransferStation = _GetTransferStationIfExists();
+            string Direction1 = clsStation.GetDirectionName((int)LineFrom, StationFrom, TransferStation);
+            string Direction2 = clsStation.GetDirectionName((int)LineFrom, TransferStation, StationTo);
+            string Message = $"هتركب الخط {_ConvertLineFloatIntoString((float)LineFrom)} إتجاه {Direction1} وهتحول من {TransferStation} للخط {_ConvertLineFloatIntoString((float)LineTo)} إتجاه {Direction2} ";
+            return Message;
+        }
+
+        private string _GenerateWithoutTransfer()
+        {
+            double Line = (double)dtRoad.Rows[0]["LineNumber"];
+            string StationFrom = _GetStationFrom();
+            string StationTo = _GetStationTo();
+            string Direction = clsStation.GetDirectionName((int)Line , StationFrom, StationTo);
+            string Message = $"هتركب الخط {_ConvertLineFloatIntoString((float)Line)} إتجاه {Direction} ومفيش تحويلات";
+            return Message ;
+        }
+
+        private string _GenerateMessage()
+        {
+            if(!_IsThereTransfer)
+            {
+                return _GenerateWithoutTransfer();
+            }
+            else
+            {
+                return _GenerateMessageWithTransfer();
+            }
         }
     }
 }
