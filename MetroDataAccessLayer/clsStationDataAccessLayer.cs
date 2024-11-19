@@ -331,5 +331,40 @@ namespace MetroDataAccessLayer
             return dtLines;
         }
 
+        static public short GetRoadPrice(short NumberOfStations)
+        {
+            short Price = -1;
+            SqlConnection Connection = new SqlConnection(clsDataAccessLayerSettings._ConnectionString);
+            string Query = @"
+                            Select Price From Prices
+                            Where StationCount =
+                            case
+                                when @NumberOfStations <0 then null
+                            	when (Select Top 1 StationCount From Prices
+                            			Where @NumberOfStations<=StationCount) is not null
+                            	then (Select Top 1 StationCount From Prices
+                            					Where @NumberOfStations<=StationCount)
+                            	else (Select Top 1  StationCount From Prices
+                            		Order By StationCount DESC)
+                            end ";
+
+            SqlCommand Command = new SqlCommand(Query, Connection);
+            Command.Parameters.AddWithValue("@NumberOfStations", NumberOfStations);
+            try
+            {
+                Connection.Open();
+                object Result = Command.ExecuteScalar();
+                if (Result != null)
+                {
+                    Price = Convert.ToInt16(Result.ToString());
+                }
+            }
+            catch { }
+            finally { Connection.Close(); }
+            return Price;
+        }
+
     }
+
+    
 }
