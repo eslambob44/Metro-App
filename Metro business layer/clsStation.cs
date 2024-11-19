@@ -154,5 +154,11 @@ namespace Metro_business_layer
         {
             return clsStationDataAccessLayer.GetRoadPrice(NumberOfStations);
         }
+
+        public static short GetRoadPrice (string StationFrom , string StationTo)
+        {
+            short NumberOfStations = GetRoadCount(StationFrom, StationTo);
+            return GetRoadPrice(NumberOfStations);
+        }
     }
 }
