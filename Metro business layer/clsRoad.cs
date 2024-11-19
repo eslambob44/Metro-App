@@ -206,7 +206,7 @@ namespace Metro_business_layer
         string _GetTransferStationIfExists()
         {
             if (!_IsThereTransfer) return null;
-            float Line = (float)dtRoad.Rows[0]["LineNumber"];
+            double Line = (double)dtRoad.Rows[0]["LineNumber"];
             DataRow[] Rows = dtRoad.Select("LineNumber = " + Line);
             return (string)Rows[Rows.Length - 1]["StationName"];
         }
@@ -219,8 +219,8 @@ namespace Metro_business_layer
             string StationFrom = _GetStationFrom();
             string StationTo = _GetStationTo();
             string TransferStation = _GetTransferStationIfExists();
-            string Direction1 = clsStation.GetDirectionName((int)LineFrom, StationFrom, TransferStation);
-            string Direction2 = clsStation.GetDirectionName((int)LineFrom, TransferStation, StationTo);
+            string Direction1 = clsStation.GetDirectionName((float)LineFrom, StationFrom, TransferStation);
+            string Direction2 = clsStation.GetDirectionName((float)LineTo, TransferStation, StationTo);
             string Message = $"هتركب الخط {_ConvertLineFloatIntoString((float)LineFrom)} إتجاه {Direction1} وهتحول من {TransferStation} للخط {_ConvertLineFloatIntoString((float)LineTo)} إتجاه {Direction2} ";
             return Message;
         }
@@ -230,7 +230,7 @@ namespace Metro_business_layer
             double Line = (double)dtRoad.Rows[0]["LineNumber"];
             string StationFrom = _GetStationFrom();
             string StationTo = _GetStationTo();
-            string Direction = clsStation.GetDirectionName((int)Line , StationFrom, StationTo);
+            string Direction = clsStation.GetDirectionName((float)Line , StationFrom, StationTo);
             string Message = $"هتركب الخط {_ConvertLineFloatIntoString((float)Line)} إتجاه {Direction} ومفيش تحويلات";
             return Message ;
         }

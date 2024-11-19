@@ -65,6 +65,12 @@
     <Compile Include="frmMetroMap.Designer.cs">
       <DependentUpon>frmMetroMap.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmShowRoad.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmShowRoad.Designer.cs">
+      <DependentUpon>frmShowRoad.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="frmMain.resx">
@@ -72,6 +78,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmMetroMap.resx">
       <DependentUpon>frmMetroMap.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmShowRoad.aa.resx">
+      <DependentUpon>frmShowRoad.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmShowRoad.resx">
+      <DependentUpon>frmShowRoad.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

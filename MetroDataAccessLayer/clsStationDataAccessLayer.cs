@@ -356,7 +356,7 @@ namespace MetroDataAccessLayer
                 object Result = Command.ExecuteScalar();
                 if (Result != null)
                 {
-                    Price = Convert.ToInt16(Result.ToString());
+                    Price = Convert.ToInt16(Result);
                 }
             }
             catch { }
@@ -422,10 +422,10 @@ namespace MetroDataAccessLayer
                         	    when @StationFromOrder < @StationToOrder 
                                 then (Select Top 1 StationName From FullStationInfo
                         	    			Where LineNumber =@LineNumber
-                        	    			Order By StationOrder ASC)
-                        	    else (Select Top 1 StationName From FullStationInfo
-                        	    			Where LineNumber =LineNumber
                         	    			Order By StationOrder DESC)
+                        	    else (Select Top 1 StationName From FullStationInfo
+                        	    			Where LineNumber =@LineNumber
+                        	    			Order By StationOrder ASC)
                             end";
             SqlCommand Command = new SqlCommand(Query, Connection);
             Command.Parameters.AddWithValue("@LineNumber", Line);
