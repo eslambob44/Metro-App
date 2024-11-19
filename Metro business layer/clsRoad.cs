@@ -136,7 +136,8 @@ namespace Metro_business_layer
 
         private static short _GetRoadCount(DataTable dtStations)
         {
-            return (short)(dtStations.Rows.Count - 1);
+             bool IsTransfer = ((double)dtStations.Rows[0]["LineNumber"] != (double)dtStations.Rows[dtStations.Rows.Count - 1]["LineNumber"]) ;
+            return (short)(dtStations.Rows.Count - Convert.ToInt16(IsTransfer));
         }
 
         private static short _GetRoadCountBetweenTwoStationsInTheSameLine(string StationFrom, string StationTo)

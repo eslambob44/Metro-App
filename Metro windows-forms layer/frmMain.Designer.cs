@@ -297,7 +297,7 @@
             this.txtPriceStationTo.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtPriceStationTo.Name = "txtPriceStationTo";
             this.txtPriceStationTo.PasswordChar = '\0';
-            this.txtPriceStationTo.PlaceholderText = "من";
+            this.txtPriceStationTo.PlaceholderText = "إلي";
             this.txtPriceStationTo.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.txtPriceStationTo.SelectedText = "";
             this.txtPriceStationTo.Size = new System.Drawing.Size(143, 36);
@@ -653,7 +653,7 @@
             this.txtRoadStationTo.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtRoadStationTo.Name = "txtRoadStationTo";
             this.txtRoadStationTo.PasswordChar = '\0';
-            this.txtRoadStationTo.PlaceholderText = "من";
+            this.txtRoadStationTo.PlaceholderText = "إلي";
             this.txtRoadStationTo.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.txtRoadStationTo.SelectedText = "";
             this.txtRoadStationTo.Size = new System.Drawing.Size(143, 36);

@@ -141,7 +141,15 @@ namespace Metro_windows_forms_layer
 
         private void cbRoadStation_SelectedIndexChanged(object sender, EventArgs e)
         {
-            btnRoadCalculate.Enabled = (cbRoadStationTo.SelectedIndex != -1 && cbRoadStationFrom.SelectedIndex !=-1);
+            btnRoadCalculate.Enabled = (cbRoadStationTo.SelectedIndex != -1 && cbRoadStationFrom.SelectedIndex != -1);
+        }
+
+        void _ReloadMainTapPage()
+        {
+            txtRoadStationFrom.Clear();
+            txtRoadStationTo.Clear();
+            cbRoadStationFrom.SelectedIndex = -1;
+            cbRoadStationTo.SelectedIndex = -1;
         }
 
         private void btnRoadCalculate_Click(object sender, EventArgs e)
@@ -153,6 +161,7 @@ namespace Metro_windows_forms_layer
             {
                 Form frm = new frmShowRoad(Road);
                 frm.ShowDialog();
+                _ReloadMainTapPage();
             }
         }
     }
