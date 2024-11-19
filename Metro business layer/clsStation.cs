@@ -27,6 +27,11 @@ namespace Metro_business_layer
             return clsStationDataAccessLayer.GetStationsByLikeName(StationName);
         }
 
+        public static string GetDirectionName (int LineNumber , string StationFrom , string StationTo)
+        {
+            return clsStationDataAccessLayer.GetDirectionOfLine(LineNumber , StationFrom , StationTo);  
+        }
+
         
 
         
